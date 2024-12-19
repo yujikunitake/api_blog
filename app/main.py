@@ -13,10 +13,17 @@ def get_db():
     finally:
         db.close()
 
+# Listagem de Artigos
+@app.get("/artigos/")
+def listar_artigos(data_publicacao_inicial: datetime = None, data_publicacao_final: datetime = None, tag: str = None, db: Session = Depends(get_db)):
+    return crud.retorna_artigos(db=db, data_publicaco_inicial=data_publicacao_inicial, data_publicacao_final=data_publicacao_final, tag=tag)
+
+# Exibição de Artigo Único
+@app.get("/artigos/{id}")
+def exibir_artigo_unico(id: int, db: Session = Depends(get_db)):
+    return crud.retorna_artigo_por_id(db=db, id_artigo=id)
+
+# Publicação de Artigo
 @app.post("/artigos/")
 def publicar_artigo(artigo: schemas.ArtigoPublicacao, db: Session = Depends(get_db)):
-    return crud.cria_artigo(db=db, titulo=artigo.titulo, conteudo=artigo.conteudo, tags=artigo.tags)
-
-@app.get("/artigos/")
-def listar_artigos(data_publicacao_inicial: datetime = None, data_publicacao_final: datetime = None, tags: list[str] = None, db: Session = Depends(get_db)):
-    return crud.retorna_artigos(db=db, data_publicaco_inicial=data_publicacao_inicial, data_publicacao_final=data_publicacao_final, tags=tags)
+    return crud.cria_artigo(db=db, titulo=artigo.titulo, conteudo=artigo.conteudo, tag=artigo.tag)

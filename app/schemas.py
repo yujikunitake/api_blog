@@ -9,14 +9,14 @@ class ArtigoBase(BaseModel):
 
 
 class ArtigoPublicacao(ArtigoBase):
-    tags: Optional[List[str]] = []
+    tag: Optional[str] = None
 
 
 class Artigo(ArtigoBase):
     id: int
     data_publicacao: datetime
     data_atualizacao: datetime
-    tags: List[str]
+    tag: Optional[str] = None
 
     class Config:
         from_attributes = True

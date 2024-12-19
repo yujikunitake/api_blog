@@ -4,8 +4,8 @@ from . import models
 
 
 # Retorna todos os artigos, pode ser filtrado por intervalo de data de publicação e tag
-def retorna_artigos(db:Session, data_publicaco_inicial: datetime = None, data_publicacao_final: datetime = None, tags: list[str] = None):
-    query = db.query(models.Artigo).join(models.Artigo.tags)
+def retorna_artigos(db:Session, data_publicaco_inicial: datetime = None, data_publicacao_final: datetime = None, tag: str = None):
+    query = db.query(models.Artigo)
 
     # Filtra por data, se fornecida
     if data_publicaco_inicial and data_publicacao_final:
@@ -15,9 +15,9 @@ def retorna_artigos(db:Session, data_publicaco_inicial: datetime = None, data_pu
     elif data_publicacao_final:
         query = query.filter(models.Artigo.data_publicacao <= data_publicacao_final)
 
-    # Filtra por tags, se fornecidas
-    if tags:
-        query = query.filter(models.Tag.descricao.in_(tags))
+    # Filtra por tag, se fornecida
+    if tag:
+        query = query.filter(models.Artigo.tag == tag)
 
     # Ordena os artigos por data de publicação decrescente
     query = query.order_by(models.Artigo.data_publicacao.desc())
@@ -28,21 +28,9 @@ def retorna_artigos(db:Session, data_publicaco_inicial: datetime = None, data_pu
 def retorna_artigo_por_id(db: Session, id_artigo: int):
     return db.query(models.Artigo).filter(models.Artigo.id == id_artigo).first()
 
-# Insere um novo artigo no banco, recebe o título, contúdo e, opcionalmente, uma ou mais tags. 
-def cria_artigo(db: Session, titulo: str, conteudo: str, tags: list[str]):
-    db_artigo = models.Artigo(titulo=titulo, conteudo=conteudo)
-
-    # Itera sobre a lista de tags fornecida e verifica se as tags fornecidas existem no banco.
-    lista_tags = []
-    for descricao_tag in tags:
-        tag = db.query(models.Tag).filter(models.Tag.descricao == descricao_tag).first()
-        # Se a descrição da tag não existir no banco, a mesma será criada.
-        if not tag:
-            tag = models.Tag(descricao=descricao_tag)
-            db.add(tag)
-        lista_tags.append(tag)
-
-    db_artigo.tags = lista_tags
+# Insere um novo artigo no banco, recebe o título, contúdo e, opcionalmente, uma tag. 
+def cria_artigo(db: Session, titulo: str, conteudo: str, tag: str = None):
+    db_artigo = models.Artigo(titulo=titulo, conteudo=conteudo, tag=tag)
 
     db.add(db_artigo)
     db.commit()
